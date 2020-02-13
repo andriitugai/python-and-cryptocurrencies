@@ -3,55 +3,63 @@ import requests
 
 ticker_url = 'https://api.coinmarketcap.com/v2/ticker/?structure=array'
 
-limit = 100
-start = 1
-sort = 'id'
-convert = 'USD'
+while True:
 
-choice = input('Do you want to enter any custom parameters? (y/n): ')
+    limit = 100
+    start = 1
+    sort = 'rank'
+    convert = 'USD'
 
-if choice == 'y':
-    limit   = input(f'New value for limit ({limit})           : ') and limit
-    start   = input(f'New value for start from ({start})      : ') and start
-    sort    = input(f'New value for sort by ({sort})          : ') and sort
-    convert = input(f'New value for local currency ({convert}): ') and convert
+    choice = input('Do you want to enter any custom parameters? (y/n): ')
 
-ticker_url += f'&limit={limit}&start={start}&sort={sort}&convert={convert}'
+    if choice == 'y':
+        limit   = input(f'New value for limit ({limit})           : ') or limit
+        start   = input(f'New value for start from ({start})      : ') or start
+        sort    = input(f'New value for sort by ({sort})          : ') or sort
+        convert = input(f'New value for local currency ({convert}): ') or convert
 
-request = requests.get(ticker_url)
-results = request.json()
+    ticker_url += f'&limit={limit}&start={start}&sort={sort}&convert={convert}'
 
-# print(json.dumps(results, sort_keys=True, indent=4))
+    request = requests.get(ticker_url)
+    results = request.json()
 
-data = results['data']
-print()
+    # print(json.dumps(results, sort_keys=True, indent=4))
 
-for currency in data:
-    rank = currency['rank']
-    name = currency['name']
-    symbol = currency['symbol']
+    data = results['data']
+    print()
 
-    circulating_supply = int(currency['circulating_supply'])
-    total_supply = int(currency['total_supply'])
+    for currency in data:
+        rank = currency['rank']
+        name = currency['name']
+        symbol = currency['symbol']
 
-    quotes = currency['quotes'][convert]
+        circulating_supply = int(currency['circulating_supply'])
+        total_supply = int(currency['total_supply'])
 
-    market_cap = quotes['market_cap']
-    hour_change = quotes['percent_change_1h']
-    day_change = quotes['percent_change_24h']
-    week_change = quotes['percent_change_7d']
-    price = quotes['price']
-    volume = quotes['volume_24h']
+        quotes = currency['quotes'][convert]
 
-    print(f'{rank:>5} {name} ({symbol})')
-    print(f'Market Cap: {convert} {market_cap:,}')
-    print(f'Price: {convert} {price}')
-    print(f'Volume: {volume}')
-    print(f'Hour change: {hour_change}%')
-    print(f'Day change: {day_change}%')
-    print(f'Week change: {week_change}%')
+        market_cap = quotes['market_cap']
+        hour_change = quotes['percent_change_1h']
+        day_change = quotes['percent_change_24h']
+        week_change = quotes['percent_change_7d']
+        price = quotes['price']
+        volume = quotes['volume_24h']
 
-    print(f'Total supply: {total_supply}')
-    print(f'Circulating supply: {circulating_supply}')
+        
+        print(f'{rank:>5}           {name} ({symbol})')
+        print(f'Market Cap:         {convert} {market_cap:,}')
+        print(f'Price:              {convert} {price}')
+        print(f'Volume:             {volume}')
+        print(f'Hour change:        {hour_change}%')
+        print(f'Day change:         {day_change}%')
+        print(f'Week change:        {week_change}%')
 
-    print(f'Percentage of coins in circulation: {circulating_supply/total_supply*100: .2}%')
+        print(f'Total supply:       {total_supply}')
+        print(f'Circulating supply: {circulating_supply}')
+
+        print(f'Percentage of coins in circulation: {circulating_supply/total_supply*100:3.2f}%')
+        print('-'*30)
+        print()
+
+    if input('Continue? (y/n)') == 'n':
+        break
